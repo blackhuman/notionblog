@@ -6,6 +6,9 @@ import { ParagraphBlock, RichText, TitlePropertyValue } from '@notionhq/client/b
 export default function Page({ title, blocks }) {
   const router = useRouter()
   const { pid } = router.query
+  if (router.isFallback) {
+    return <div>Loading...</div>
+  }
   return (
     <div>
       <p>{title}</p>
@@ -40,7 +43,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     props: {
       title: pageTitle,
       blocks: blocksResponse.results
-    }
+    },
+    revalidate: 5
   }
 }
 
@@ -50,9 +54,7 @@ export async function getStaticPaths() {
   })
   let pages = response.results
   return {
-    paths: pages.map(page => {
-      return { params: { pid: page.id } }
-    }),
-    fallback: false
+    paths: [],
+    fallback: true
   };
 }

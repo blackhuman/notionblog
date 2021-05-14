@@ -5,12 +5,13 @@ import { Client } from '@notionhq/client'
 import Link from 'next/link'
 
 import type { Page, TitlePropertyValue } from '@notionhq/client/build/src/api-types'
+import type { GetStaticProps } from 'next'
 
 const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
-export async function getStaticProps() {
+export const getStaticProps: GetStaticProps = async ({ params }) =>  {
   let response = await notion.databases.query({
     database_id: 'b66f3740-ab1e-425b-a321-a806febd5f71'
   })
@@ -18,6 +19,7 @@ export async function getStaticProps() {
     props: {
       pages: response.results
     },
+    revalidate: 5
   }
 }
 
