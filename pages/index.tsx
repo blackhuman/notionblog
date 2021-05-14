@@ -1,23 +1,18 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
-import { Client } from '@notionhq/client'
 import Link from 'next/link'
+import { retrievePages } from 'components/notion'
+import { extractPageTitle } from 'components/notion-helper'
 
-import type { Page, TitlePropertyValue } from '@notionhq/client/build/src/api-types'
 import type { GetStaticProps } from 'next'
-
-const notion = new Client({
-  auth: process.env.NOTION_TOKEN,
-});
+import type { Page } from 'components/notion'
 
 export const getStaticProps: GetStaticProps = async ({ params }) =>  {
-  let response = await notion.databases.query({
-    database_id: 'b66f3740-ab1e-425b-a321-a806febd5f71'
-  })
+  let pages = await retrievePages()
   return {
     props: {
-      pages: response.results
+      pages: pages
     },
     revalidate: 5
   }
@@ -35,8 +30,7 @@ export default function Home({ pages }) {
       <main className={styles.main}>
         <ul>
           {pages.map((page: Page) => {
-            let pageNameProp = page.properties['Name'] as TitlePropertyValue
-            let title = pageNameProp.title.map(meta => meta.plain_text)[0] ?? 'Untitled'
+            let title = extractPageTitle(page)
             return <li key={page.id}>
               <Link href={`/page/${encodeURIComponent(page.id)}`}><a>{title}</a></Link>
             </li>
